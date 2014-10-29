@@ -1,0 +1,14 @@
+{
+  "name": "james-bond",
+  "description": "Hire James Bond to deeply observe your (object) targets.",
+  "version": "0.0.0",
+  "private": false,
+  "main": "007.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/trusktr/james-bond"
+  },
+  "bugs": "http://github.com/trusktr/james-bond/issues",
+  "dependencies": {
+  }
+}
