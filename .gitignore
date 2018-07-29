@@ -25,6 +25,7 @@ yarn-error.log
 # not config files
 !/.builderrc
 !/.npmrc
+!/.npmignore
 !/babel.config.js
 !/buble.config.js
 !/jest.config.js
