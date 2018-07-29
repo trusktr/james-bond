@@ -1,5 +1,9 @@
+import observe from './observe'
 
-function observe(object, handler, argumentArray) {
+export { observe }
+
+export
+function deeplyObserve(object, handler, argumentArray) {
     var path = arguments[3];
 
     if (!(object instanceof Object)) {
@@ -25,9 +29,9 @@ function observe(object, handler, argumentArray) {
 
     for (var prop in object) {
         if (object[prop] instanceof Object) {
-            observe(object[prop], handler, argumentArray, (path.length? path+'.'+prop: prop) );
+            deeplyObserve(object[prop], handler, argumentArray, (path.length? path+'.'+prop: prop) );
         }
     }
 }
 
-module.exports.observe = observe;
+export const version = '0.0.0'
