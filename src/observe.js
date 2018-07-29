@@ -14,14 +14,14 @@ function observe(object, propertyNames, callback) {
         let callbacks = propCallbacks.get(propName)
 
         if (callbacks) {
-            callbacks.add(callback)
+            if (!callbacks.includes(callback)) callbacks.push(callback)
             continue
         }
 
         // the rest only runs the first time the prop observation is set up
 
-        propCallbacks.set(propName, callbacks = new Set)
-        callbacks.add(callback)
+        propCallbacks.set(propName, callbacks = [])
+        callbacks.push(callback)
 
         let getValue
         let setValue
@@ -63,6 +63,8 @@ function observe(object, propertyNames, callback) {
         })
     }
 }
+
+// TODO unobserve
 
 function runCallbacks(object, propName, value) {
     const callbacks = propsAndCallbacks.get(object).get(propName)
