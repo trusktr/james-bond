@@ -1,6 +1,6 @@
-import observe from './observe'
+import { observe, unobserve } from './observe'
 
-export { observe }
+export { observe, unobserve }
 
 export
 function deeplyObserve(object, handler, argumentArray) {
