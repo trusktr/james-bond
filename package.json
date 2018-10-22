@@ -36,6 +36,7 @@
     "observable"
   ],
   "dependencies": {
-    "lowclass": "^4.1.0"
+    "lowclass": "^4.1.0",
+    "@babel/runtime": "^7.0.0-beta.46"
   }
 }
