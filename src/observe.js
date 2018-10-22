@@ -1,8 +1,13 @@
+import { getInheritedDescriptor } from 'lowclass/utils'
 
 const propsAndCallbacks = new WeakMap
 
 export
-function observe(object, propertyNames, callback) {
+function observe(object, propertyNames, callback, options = {}) {
+    // TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
+    options.async = options.async || false
+    options.inherited = options.inherited || false
+
     for (const propName of propertyNames) {
 
         let propCallbacks = propsAndCallbacks.get(object)
@@ -20,7 +25,7 @@ function observe(object, propertyNames, callback) {
         propCallbacks.set(propName, callbacks = [])
         callbacks.push(callback)
 
-        defineObservationGetterSetter(object, propName)
+        defineObservationGetterSetter(object, propName, options)
     }
 }
 
@@ -29,7 +34,7 @@ function unobserve(object, props, callback) {
     const propCallbacks = propsAndCallbacks.get(object)
 
     if (!propCallbacks) {
-        console.warn('the object is not observed:', object)
+        console.warn('the object is not observed, no need to unobserve:', object)
         return
     }
 
@@ -50,8 +55,9 @@ function unobserve(object, props, callback) {
     }
 }
 
-function defineObservationGetterSetter(object, propName) {
-    const descriptor = Object.getOwnPropertyDescriptor(object, propName) || {}
+function defineObservationGetterSetter(object, propName, options) {
+    const descriptor = getInheritedDescriptor(object, propName) || {}
+    const owner = options.inherited ? descriptor.owner || object : object
 
     let getValue
     let setValue
@@ -76,7 +82,7 @@ function defineObservationGetterSetter(object, propName) {
         setValue = value => _value = value
     }
 
-    Object.defineProperty(object, propName, {
+    Object.defineProperty(owner, propName, {
         ...descriptor,
         get: getValue,
         set(value) {

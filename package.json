@@ -34,5 +34,8 @@
     "deep observe",
     "deepObserve",
     "observable"
-  ]
+  ],
+  "dependencies": {
+    "lowclass": "^4.1.0"
+  }
 }
