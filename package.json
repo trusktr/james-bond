@@ -2,15 +2,23 @@
   "name": "james-bond",
   "version": "0.4.2",
   "description": "Hire James Bond to deeply observe your (object) targets.",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "type": "module",
+  "exports COMMENT:": "This removes 'dist' from import statements, as well as replaces the 'main' field. See https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
+  "exports": {
+    ".": "./dist/index.js",
+    "./": "./dist/"
+  },
   "scripts": {
-    "clean": "builder run build:clean",
-    "build": "builder run build:prod",
-    "dev": "builder run build:dev",
-    "test": "builder run npm:test",
-    "preversion": "builder run npm:preversion",
-    "version": "builder run npm:version",
-    "postversion": "builder run npm:postversion"
+    "clean": "LOCAL_DEV=true builder run clean",
+    "build": "LOCAL_DEV=true builder run build:prod",
+    "dev": "LOCAL_DEV=true builder run build:dev",
+    "test": "LOCAL_DEV=true builder run npm:test",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch",
+    "preversion": "LOCAL_DEV=true builder run npm:preversion",
+    "version": "LOCAL_DEV=true builder run npm:version",
+    "postversion": "LOCAL_DEV=true builder run npm:postversion"
   },
   "repository": {
     "type": "git",
@@ -22,8 +30,8 @@
   },
   "homepage": "http://github.com/trusktr/james-bond#readme",
   "devDependencies": {
-    "builder": "^3.2.3",
-    "builder-js-package": "trusktr/builder-js-package#8c91c8bea1222065d08bb66cd68baf4c56f8ed95"
+    "builder": "^5.0.0",
+    "builder-js-package": "^1.0.0"
   },
   "keywords": [
     "observe",

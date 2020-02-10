@@ -1,9 +1,16 @@
-import { getInheritedDescriptor } from 'lowclass/utils'
+import { getInheritedDescriptor } from 'lowclass'
 
-const propsAndCallbacks = new WeakMap
+type Options = Partial<{
+    async: boolean
+    inherited: boolean
+}>
+
+type Callback = (propName: string, value: any) => unknown
+
+const propsAndCallbacks = new WeakMap<object, Map<string, Callback[]>>()
 
 export
-function observe(object, propertyNames, callback, options = {}) {
+function observe(object: object, propertyNames: string[], callback: Callback, options: Options = {}) {
     // TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
     options.async = options.async || false
     options.inherited = options.inherited || false
@@ -30,7 +37,7 @@ function observe(object, propertyNames, callback, options = {}) {
 }
 
 export
-function unobserve(object, props, callback) {
+function unobserve(object: object, props: Callback | string[], callback?: Callback) {
     const propCallbacks = propsAndCallbacks.get(object)
 
     if (!propCallbacks) {
@@ -41,7 +48,7 @@ function unobserve(object, props, callback) {
     // If called as unobserve(object, callback), unobserve all props for the callback.
     if (typeof props === 'function') {
         callback = props
-        props = Array.from( propsAndCallbacks.get(object).keys() )
+        props = Array.from( propCallbacks.keys() )
     }
 
     // Otherwise called as unobserve(object, props, callback), so unobserve the specific props for the callback.
@@ -49,18 +56,20 @@ function unobserve(object, props, callback) {
     if (!callback) throw new TypeError('callback not supplied')
 
     for (const prop of props) {
-        const callbacks = propCallbacks.get(prop)
-        callbacks.includes(callback) &&
+        const callbacks = propCallbacks.get(prop)!
+        if (callbacks.includes(callback)) {
             callbacks.splice(callbacks.indexOf(callback), 1)
+            if (!callbacks.length) propCallbacks.delete(prop)
+        }
     }
 }
 
-function defineObservationGetterSetter(object, propName, options) {
-    const descriptor = getInheritedDescriptor(object, propName) || {}
+function defineObservationGetterSetter(object: object, propName: string, options: Options) {
+    const descriptor = getInheritedDescriptor(object, propName) || ({} as ReturnType<typeof getInheritedDescriptor>)!
     const owner = options.inherited ? descriptor.owner || object : object
 
-    let getValue
-    let setValue
+    let getValue: (() => any) | undefined
+    let setValue: ((v: any) => void) | undefined
 
     if (descriptor.get || descriptor.set) {
         // we will use the existing getter/setter assuming they don't do
@@ -69,11 +78,13 @@ function defineObservationGetterSetter(object, propName, options) {
         const oldGet = descriptor.get
         const oldSet = descriptor.set
 
-        getValue = () => oldGet.call(object)
-        setValue = value => oldSet.call(object, value)
+        getValue = oldGet ? () => oldGet.call(object) : undefined
+        setValue = oldSet ? value => oldSet.call(object, value) : undefined
     }
     else {
         let _value = descriptor.value
+
+        if (!descriptor.writable) throw new Error('Can not observe readonly property.')
 
         delete descriptor.value
         delete descriptor.writable
@@ -82,19 +93,22 @@ function defineObservationGetterSetter(object, propName, options) {
         setValue = value => _value = value
     }
 
+    if (!setValue) throw new Error('Can not observe read-only property.')
+    if (!getValue) throw new Error('Can not observe write-only property.')
+
     Object.defineProperty(owner, propName, {
         ...descriptor,
         get: getValue,
         set(value) {
-            setValue(value)
-            runCallbacks(object, propName, getValue())
+            setValue!(value)
+            runCallbacks(object, propName, getValue!())
         },
     })
 }
 
-function runCallbacks(object, propName, value) {
-    const callbacks = propsAndCallbacks.get(object).get(propName)
-    for (const callback of callbacks) {
+function runCallbacks(object: object, propName: string, value: any) {
+    const callbacks = propsAndCallbacks.get(object)!.get(propName)
+    for (const callback of callbacks!) {
         callback(propName, value)
     }
 }
