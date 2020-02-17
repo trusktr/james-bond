@@ -10,15 +10,17 @@
     "./": "./dist/"
   },
   "scripts": {
-    "clean": "LOCAL_DEV=true builder run clean",
-    "build": "LOCAL_DEV=true builder run build:prod",
-    "dev": "LOCAL_DEV=true builder run build:dev",
     "test": "LOCAL_DEV=true builder run npm:test",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch",
     "preversion": "LOCAL_DEV=true builder run npm:preversion",
     "version": "LOCAL_DEV=true builder run npm:version",
-    "postversion": "LOCAL_DEV=true builder run npm:postversion"
+    "postversion": "LOCAL_DEV=true builder run npm:postversion",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+    "clean": "lume clean",
+    "build": "lume build",
+    "dev": "lume dev",
+    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch"
   },
   "repository": {
     "type": "git",
