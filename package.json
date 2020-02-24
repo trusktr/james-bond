@@ -1,52 +1,52 @@
 {
-  "name": "james-bond",
-  "version": "0.4.2",
-  "description": "Hire James Bond to deeply observe your (object) targets.",
-  "main": "dist/index.js",
-  "type": "module",
-  "exports COMMENT:": "This removes 'dist' from import statements, as well as replaces the 'main' field. See https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
-  "exports": {
-    ".": "./dist/index.js",
-    "./": "./dist/"
-  },
-  "scripts": {
-    "test": "LOCAL_DEV=true builder run npm:test",
-    "preversion": "LOCAL_DEV=true builder run npm:preversion",
-    "version": "LOCAL_DEV=true builder run npm:version",
-    "postversion": "LOCAL_DEV=true builder run npm:postversion",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
-    "clean": "lume clean",
-    "build": "lume build",
-    "dev": "lume dev",
-    "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
-    "typecheck": "tsc -p ./tsconfig.json --noEmit",
-    "typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/trusktr/james-bond.git"
-  },
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/trusktr/james-bond/issues"
-  },
-  "homepage": "http://github.com/trusktr/james-bond#readme",
-  "devDependencies": {
-    "builder": "^5.0.0",
-    "builder-js-package": "^1.0.0"
-  },
-  "keywords": [
-    "observe",
-    "object.observe",
-    "object observe",
-    "obervation",
-    "reactivity",
-    "deep observe",
-    "deepObserve",
-    "observable"
-  ],
-  "dependencies": {
-    "lowclass": "^4.1.0",
-    "@babel/runtime": "7.0.0-beta.46"
-  }
+	"name": "james-bond",
+	"version": "0.4.2",
+	"description": "Hire James Bond to deeply observe your (object) targets.",
+	"main": "dist/index.js",
+	"type": "module",
+	"exports COMMENT:": "This removes 'dist' from import statements, as well as replaces the 'main' field. See https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
+	"exports": {
+		".": "./dist/index.js",
+		"./": "./dist/"
+	},
+	"scripts": {
+		"test": "LOCAL_DEV=true builder run npm:test",
+		"preversion": "LOCAL_DEV=true builder run npm:preversion",
+		"version": "LOCAL_DEV=true builder run npm:version",
+		"postversion": "LOCAL_DEV=true builder run npm:postversion",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+		"clean": "lume clean",
+		"build": "lume build",
+		"dev": "lume dev",
+		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
+		"typecheck": "tsc -p ./tsconfig.json --noEmit",
+		"typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+ssh://git@github.com/trusktr/james-bond.git"
+	},
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/trusktr/james-bond/issues"
+	},
+	"homepage": "http://github.com/trusktr/james-bond#readme",
+	"devDependencies": {
+		"builder": "^5.0.0",
+		"builder-js-package": "^1.0.0"
+	},
+	"keywords": [
+		"observe",
+		"object.observe",
+		"object observe",
+		"obervation",
+		"reactivity",
+		"deep observe",
+		"deepObserve",
+		"observable"
+	],
+	"dependencies": {
+		"lowclass": "^4.1.0",
+		"@babel/runtime": "7.0.0-beta.46"
+	}
 }
