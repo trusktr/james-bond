@@ -65,7 +65,13 @@ function unobserve(object: object, props: Callback | string[], callback?: Callba
 }
 
 function defineObservationGetterSetter(object: object, propName: string, options: Options) {
-    const descriptor = getInheritedDescriptor(object, propName) || ({} as ReturnType<typeof getInheritedDescriptor>)!
+    // get the existing descriptor, or create a new one if the property doesn't exist.
+    const descriptor = getInheritedDescriptor(object, propName) || ({
+        value: undefined,
+        writable: true,
+        configurable: true,
+        enumerable: true,
+    } as ReturnType<typeof getInheritedDescriptor>)!
     const owner = options.inherited ? descriptor.owner || object : object
 
     let getValue: (() => any) | undefined
@@ -84,7 +90,10 @@ function defineObservationGetterSetter(object: object, propName: string, options
     else {
         let _value = descriptor.value
 
-        if (!descriptor.writable) throw new Error('Can not observe readonly property.')
+        if (!descriptor.writable) {
+            console.error(`Can not observe readonly property "${propName}" with descriptor`, descriptor, `of object:`, object)
+            throw new Error(`Can not observe readonly property "${propName}" of object: ${object} (see above)`)
+        }
 
         delete descriptor.value
         delete descriptor.writable
