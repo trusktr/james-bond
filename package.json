@@ -2,7 +2,10 @@
 	"name": "james-bond",
 	"version": "0.4.2",
 	"description": "Hire James Bond to deeply observe your (object) targets.",
+	"license": "MIT",
+	"homepage": "http://github.com/trusktr/james-bond#readme",
 	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
 	"type": "module",
 	"exports COMMENT:": "This removes 'dist' from import statements, as well as replaces the 'main' field. See https://github.com/nodejs/node/issues/14970#issuecomment-571887546",
 	"exports": {
@@ -10,30 +13,34 @@
 		"./": "./dist/"
 	},
 	"scripts": {
-		"test": "LOCAL_DEV=true builder run npm:test",
-		"preversion": "LOCAL_DEV=true builder run npm:preversion",
-		"version": "LOCAL_DEV=true builder run npm:version",
-		"postversion": "LOCAL_DEV=true builder run npm:postversion",
-		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX LUME SCRIPTS": "",
+		"LUME SCRIPTS XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX": "",
 		"clean": "lume clean",
 		"build": "lume build",
 		"dev": "lume dev",
-		"XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX OTHER SCRIPTS": "",
-		"typecheck": "tsc -p ./tsconfig.json --noEmit",
-		"typecheck:watch": "tsc -p ./tsconfig.json --noEmit --watch"
+		"typecheck": "lume typecheck",
+		"typecheck:watch": "lume typecheckWatch",
+		"test": "lume test",
+		"test:debug": "lume testDebug",
+		"prettier": "lume prettier",
+		"prettier:check": "lume prettierCheck",
+		"release:patch": "lume releasePatch",
+		"release:minor": "lume releaseMinor",
+		"release:major": "lume releaseMajor",
+		"version": "lume versionHook",
+		"postversion": "lume postVersionHook"
+	},
+	"dependencies": {
+		"lowclass": "^4.1.0"
+	},
+	"devDependencies": {
+		"builder-js-package": "^1.0.0"
 	},
 	"repository": {
 		"type": "git",
 		"url": "git+ssh://git@github.com/trusktr/james-bond.git"
 	},
-	"license": "MIT",
 	"bugs": {
 		"url": "https://github.com/trusktr/james-bond/issues"
-	},
-	"homepage": "http://github.com/trusktr/james-bond#readme",
-	"devDependencies": {
-		"builder": "^5.0.0",
-		"builder-js-package": "^1.0.0"
 	},
 	"keywords": [
 		"observe",
@@ -44,9 +51,5 @@
 		"deep observe",
 		"deepObserve",
 		"observable"
-	],
-	"dependencies": {
-		"lowclass": "^4.1.0",
-		"@babel/runtime": "7.0.0-beta.46"
-	}
+	]
 }
