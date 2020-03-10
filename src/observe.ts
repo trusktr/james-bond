@@ -1,16 +1,16 @@
 import { getInheritedDescriptor } from 'lowclass'
 
-type Options = Partial<{
+type Options = {
     async: boolean
     inherited: boolean
-}>
+}
 
 type Callback = (propName: string, value: any) => unknown
 
 const propsAndCallbacks = new WeakMap<object, Map<string, Callback[]>>()
 
 export
-function observe(object: object, propertyNames: string[], callback: Callback, options: Options = {}) {
+function observe(object: object, propertyNames: string[], callback: Callback, options: Partial<Options> = {}) {
     // TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
     options.async = options.async || false
     options.inherited = options.inherited || false
@@ -32,10 +32,13 @@ function observe(object: object, propertyNames: string[], callback: Callback, op
         propCallbacks.set(propName, callbacks = [])
         callbacks.push(callback)
 
-        defineObservationGetterSetter(object, propName, options)
+        defineObservationGetterSetter(object, propName, options as Options)
     }
 }
 
+// NOTE, unobserve does not remove the observation accessors that observe
+// creates. It might be nice if it did, so that objects can return to their lean
+// shape. TODO can we do it?
 export
 function unobserve(object: object, props: Callback | string[], callback?: Callback) {
     const propCallbacks = propsAndCallbacks.get(object)
@@ -64,7 +67,21 @@ function unobserve(object: object, props: Callback | string[], callback?: Callba
     }
 }
 
+// This is used to keep track if an object already has an observation accessor
+// in place for a given property. If so, then we don't need to add another layer
+// of property descriptor on top for each new call to observe on the object.
+const objectsToObservableProps = new WeakMap<object, Set<string>>()
+
 function defineObservationGetterSetter(object: object, propName: string, options: Options) {
+    let observableProps: Set<string> | undefined
+    const inherited = options.inherited
+
+    if (!inherited) {
+        observableProps = objectsToObservableProps.get(object)
+        if (!observableProps) objectsToObservableProps.set(object, observableProps = new Set)
+        else if (observableProps.has(propName)) return
+    }
+
     // get the existing descriptor, or create a new one if the property doesn't exist.
     const descriptor = getInheritedDescriptor(object, propName) || ({
         value: undefined,
@@ -72,7 +89,18 @@ function defineObservationGetterSetter(object: object, propName: string, options
         configurable: true,
         enumerable: true,
     } as ReturnType<typeof getInheritedDescriptor>)!
+
     const owner = options.inherited ? descriptor.owner || object : object
+
+    if (inherited) {
+        // TODO, this check probably actually needs to look up on the prototype
+        // chain, because people can modify prototype chains and introduce new
+        // descriptors anywhere in the chain. We want to check the whole chain
+        // to see if we find an observation accessor defined by us.
+        observableProps = objectsToObservableProps.get(owner)
+        if (!observableProps) objectsToObservableProps.set(owner, observableProps = new Set)
+        else if (observableProps.has(propName)) return
+    }
 
     let getValue: (() => any) | undefined
     let setValue: ((v: any) => void) | undefined
@@ -113,11 +141,16 @@ function defineObservationGetterSetter(object: object, propName: string, options
             runCallbacks(object, propName, getValue!())
         },
     })
+
+    observableProps!.add(propName)
 }
 
 function runCallbacks(object: object, propName: string, value: any) {
     const callbacks = propsAndCallbacks.get(object)!.get(propName)
-    for (const callback of callbacks!) {
+
+    if (!callbacks) return
+
+    for (const callback of callbacks) {
         callback(propName, value)
     }
 }
