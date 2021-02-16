@@ -1,4 +1,4 @@
-import {observe, unobserve} from './observe'
+import {observe, unobserve} from './observe.js'
 
 export {observe, unobserve}
 

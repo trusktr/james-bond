@@ -1,4 +1,4 @@
-import {observe, unobserve} from './observe'
+import {observe, unobserve} from './observe.js'
 
 describe('observe and unobserve', () => {
 	it('observes and unobserves objects synchronously', async () => {
