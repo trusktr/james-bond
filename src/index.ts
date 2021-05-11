@@ -10,10 +10,10 @@ export function deeplyObserve(object: object, handler: Handler, argumentArray: a
 	}
 
 	// requires Object.observe
-	;(Object as any).observe(object, function(changes: any) {
+	;(Object as any).observe(object, function (changes: any) {
 		var paths: any[] = []
 
-		changes.forEach(function(change: any) {
+		changes.forEach(function (change: any) {
 			paths.push(path.length ? path + '.' + change.name : change.name)
 		})
 

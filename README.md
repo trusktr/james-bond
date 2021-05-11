@@ -18,17 +18,17 @@ var janus = {
 	stats: {
 		kills: 8,
 	},
-	kill: function(someone) {
+	kill: function (someone) {
 		console.log('killed ' + someone)
 		this.stats.kills++
 	},
 }
 
-bond.observe(janus, function(intel) {
+bond.observe(janus, function (intel) {
 	console.log('Changes were made to these paths:', intel.paths)
 })
 
-setTimeout(function() {
+setTimeout(function () {
 	janus.kill('someone')
 }, 1000)
 ```
@@ -43,7 +43,7 @@ var janus = {
 	stats: {
 		kills: 8,
 	},
-	kill: function(someone) {
+	kill: function (someone) {
 		console.log('killed ' + someone)
 		this.stats.kills++
 	},
@@ -55,7 +55,7 @@ bond.observe(janus, updateView, arg1, arg2, arg3, etc)
 
 // updateView will be called as updateView(arg1, arg2, arg3, etc, intel)
 
-setTimeout(function() {
+setTimeout(function () {
 	janus.kill('someone')
 }, 1000)
 ```
@@ -64,11 +64,11 @@ setTimeout(function() {
 
 ### v1.0.0
 
--   Provide more information through the intel parameter of the callback. Currently only the paths of things that have changed are available.
--   Observe new inner objects. Currently, if you replace an object inside a target with a new object, this new inner object is not observed.
--   Don't fire the callback for each inner object that is changed, but once for the whole object.
+- Provide more information through the intel parameter of the callback. Currently only the paths of things that have changed are available.
+- Observe new inner objects. Currently, if you replace an object inside a target with a new object, this new inner object is not observed.
+- Don't fire the callback for each inner object that is changed, but once for the whole object.
 
 ### v2.0.0
 
--   Add a way to specify that the handler function should be called with requestAnimationFrame so rendering isn't blocked.
--   Observe when functions are called. E.g. intel will show that Janus `kill`ed someone.
+- Add a way to specify that the handler function should be called with requestAnimationFrame so rendering isn't blocked.
+- Observe when functions are called. E.g. intel will show that Janus `kill`ed someone.

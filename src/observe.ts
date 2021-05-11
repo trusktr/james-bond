@@ -118,12 +118,7 @@ function defineObservationGetterSetter(object: object, propName: string, options
 		let _value = descriptor.value
 
 		if (!descriptor.writable) {
-			console.error(
-				`Can not observe readonly property "${propName}" with descriptor`,
-				descriptor,
-				`of object:`,
-				object,
-			)
+			console.error(`Can not observe readonly property "${propName}" with descriptor`, descriptor, `of object:`, object)
 
 			throw new Error(`Can not observe readonly property "${propName}" of object: ${object} (see above)`)
 		}
