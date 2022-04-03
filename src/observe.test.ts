@@ -7,9 +7,9 @@ describe('observe and unobserve', () => {
 			age: '20',
 		}
 
-		const changes: string[] = []
+		const changes: PropertyKey[] = []
 
-		const onPropChange = (prop: string, value: string) => {
+		const onPropChange = (prop: PropertyKey, value: string) => {
 			changes.push(prop, value)
 		}
 

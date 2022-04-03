@@ -5,11 +5,16 @@ type Options = {
 	inherited: boolean
 }
 
-type Callback = (propName: string, value: any) => unknown
+type Callback = (propName: PropertyKey, value: any) => unknown
 
-const propsAndCallbacks = new WeakMap<object, Map<string, Callback[]>>()
+const propsAndCallbacks = new WeakMap<object, Map<PropertyKey, Callback[]>>()
 
-export function observe(object: object, propertyNames: string[], callback: Callback, options: Partial<Options> = {}) {
+export function observe<T extends object>(
+	object: T,
+	propertyNames: (keyof T)[],
+	callback: Callback,
+	options: Partial<Options> = {},
+) {
 	// TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
 	options.async = options.async || false
 	options.inherited = options.inherited || false
@@ -37,7 +42,7 @@ export function observe(object: object, propertyNames: string[], callback: Callb
 // NOTE, unobserve does not remove the observation accessors that observe
 // creates. It might be nice if it did, so that objects can return to their lean
 // shape. TODO can we do it?
-export function unobserve(object: object, props: Callback | string[], callback?: Callback) {
+export function unobserve<T extends object>(object: T, props: Callback | (keyof T)[], callback?: Callback) {
 	const propCallbacks = propsAndCallbacks.get(object)
 
 	if (!propCallbacks) {
@@ -48,7 +53,7 @@ export function unobserve(object: object, props: Callback | string[], callback?:
 	// If called as unobserve(object, callback), unobserve all props for the callback.
 	if (typeof props === 'function') {
 		callback = props
-		props = Array.from(propCallbacks.keys())
+		props = Array.from(propCallbacks.keys()) as (keyof T)[]
 	}
 
 	// Otherwise called as unobserve(object, props, callback), so unobserve the specific props for the callback.
@@ -68,14 +73,14 @@ export function unobserve(object: object, props: Callback | string[], callback?:
 // This is used to keep track if an object already has an observation accessor
 // in place for a given property. If so, then we don't need to add another layer
 // of property descriptor on top for each new call to observe on the object.
-const objectsToObservableProps = new WeakMap<object, Set<string>>()
+const objectsToObservableProps = new WeakMap<object, Set<PropertyKey>>()
 
-function defineObservationGetterSetter(object: object, propName: string, options: Options) {
-	let observableProps: Set<string> | undefined
+function defineObservationGetterSetter<T extends object>(object: T, propName: keyof T, options: Options) {
+	let observableProps: Set<keyof T> | undefined
 	const inherited = options.inherited
 
 	if (!inherited) {
-		observableProps = objectsToObservableProps.get(object)
+		observableProps = objectsToObservableProps.get(object) as Set<keyof T> | undefined
 		if (!observableProps) objectsToObservableProps.set(object, (observableProps = new Set()))
 		else if (observableProps.has(propName)) return
 	}
@@ -97,7 +102,7 @@ function defineObservationGetterSetter(object: object, propName: string, options
 		// chain, because people can modify prototype chains and introduce new
 		// descriptors anywhere in the chain. We want to check the whole chain
 		// to see if we find an observation accessor defined by us.
-		observableProps = objectsToObservableProps.get(owner)
+		observableProps = objectsToObservableProps.get(owner) as Set<keyof T> | undefined
 		if (!observableProps) objectsToObservableProps.set(owner, (observableProps = new Set()))
 		else if (observableProps.has(propName)) return
 	}
@@ -145,7 +150,7 @@ function defineObservationGetterSetter(object: object, propName: string, options
 	observableProps!.add(propName)
 }
 
-function runCallbacks(object: object, propName: string, value: any) {
+function runCallbacks<T extends object>(object: T, propName: keyof T, value: any) {
 	const callbacks = propsAndCallbacks.get(object)!.get(propName)
 
 	if (!callbacks) return
