@@ -1,7 +1,5 @@
-# common dev and OS files
 .DS_Store
 node_modules/
 package-lock.json
-dist/
 .vscode
 *.log
