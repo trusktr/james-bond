@@ -19,5 +19,5 @@ export function deeplyObserve(object, handler, argumentArray = [], path = '') {
         }
     }
 }
-export const version = '0.5.0';
+export const version = '0.5.1';
 //# sourceMappingURL=index.js.map

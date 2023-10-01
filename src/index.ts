@@ -29,4 +29,4 @@ export function deeplyObserve(object: object, handler: Handler, argumentArray: a
 	}
 }
 
-export const version = '0.5.0'
+export const version = '0.5.1'
