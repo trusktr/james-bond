@@ -33,7 +33,8 @@
 		"lowclass": "^5.0.0"
 	},
 	"devDependencies": {
-		"@lume/cli": "^0.9.0"
+		"@lume/cli": "^0.9.0",
+		"prettier": "3.0.3"
 	},
 	"repository": {
 		"type": "git",
