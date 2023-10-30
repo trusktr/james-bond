@@ -1,5 +1,11 @@
 import {observe, unobserve} from './observe.js'
 
+// TODO move type def to @lume/cli, map @types/jest's `expect` type into the
+// global env.
+declare global {
+	function expect(...args: any[]): any
+}
+
 describe('observe and unobserve', () => {
 	it('observes and unobserves objects synchronously', async () => {
 		const person = {
