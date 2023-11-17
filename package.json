@@ -25,7 +25,7 @@
 		"postversion": "lume postVersionHook"
 	},
 	"dependencies": {
-		"lowclass": "^6.0.0"
+		"lowclass": "^7.0.0"
 	},
 	"devDependencies": {
 		"@lume/cli": "^0.10.0",
