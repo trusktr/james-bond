@@ -1,3 +1,3 @@
 export * from './observe.js';
-export declare const version = "0.7.0";
+export declare const version = "0.7.1";
 //# sourceMappingURL=index.d.ts.map
