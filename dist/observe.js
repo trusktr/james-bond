@@ -1,6 +1,7 @@
 import { getInheritedDescriptor } from 'lowclass';
 const propsAndCallbacks = new WeakMap();
 export function observe(object, propertyNames, callback, options = {}) {
+    // TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
     options.async = options.async || false;
     options.inherited = options.inherited || false;
     for (const propName of propertyNames) {
@@ -12,21 +13,27 @@ export function observe(object, propertyNames, callback, options = {}) {
                 callbacks.push(callback);
             continue;
         }
+        // the rest only runs once, the first time the prop observation is set up
         propCallbacks.set(propName, (callbacks = []));
         callbacks.push(callback);
         defineObservationGetterSetter(object, propName, options);
     }
 }
+// NOTE, unobserve does not remove the observation accessors that observe
+// creates. It might be nice if it did, so that objects can return to their lean
+// shape. TODO can we do it?
 export function unobserve(object, props, callback) {
     const propCallbacks = propsAndCallbacks.get(object);
     if (!propCallbacks) {
         console.warn('the object is not observed, no need to unobserve:', object);
         return;
     }
+    // If called as unobserve(object, callback), unobserve all props for the callback.
     if (typeof props === 'function') {
         callback = props;
         props = Array.from(propCallbacks.keys());
     }
+    // Otherwise called as unobserve(object, props, callback), so unobserve the specific props for the callback.
     if (!callback)
         throw new TypeError('callback not supplied');
     for (const prop of props) {
@@ -38,6 +45,9 @@ export function unobserve(object, props, callback) {
         }
     }
 }
+// This is used to keep track if an object already has an observation accessor
+// in place for a given property. If so, then we don't need to add another layer
+// of property descriptor on top for each new call to observe on the object.
 const objectsToObservableProps = new WeakMap();
 function defineObservationGetterSetter(object, propName, options) {
     let observableProps;
@@ -49,6 +59,7 @@ function defineObservationGetterSetter(object, propName, options) {
         else if (observableProps.has(propName))
             return;
     }
+    // get the existing descriptor, or create a new one if the property doesn't exist.
     const descriptor = getInheritedDescriptor(object, propName) ||
         {
             value: undefined,
@@ -58,6 +69,10 @@ function defineObservationGetterSetter(object, propName, options) {
         };
     const owner = options.inherited ? descriptor.owner || object : object;
     if (inherited) {
+        // TODO, this check probably actually needs to look up on the prototype
+        // chain, because people can modify prototype chains and introduce new
+        // descriptors anywhere in the chain. We want to check the whole chain
+        // to see if we find an observation accessor defined by us.
         observableProps = objectsToObservableProps.get(owner);
         if (!observableProps)
             objectsToObservableProps.set(owner, (observableProps = new Set()));
@@ -67,6 +82,9 @@ function defineObservationGetterSetter(object, propName, options) {
     let getValue;
     let setValue;
     if (descriptor.get || descriptor.set) {
+        // we will use the existing getter/setter assuming they don't do
+        // anyting crazy that we might not expect. (See? Another reason for
+        // Object.observe)
         const oldGet = descriptor.get;
         const oldSet = descriptor.set;
         getValue = oldGet ? () => oldGet.call(object) : undefined;
