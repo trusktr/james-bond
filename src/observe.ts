@@ -5,9 +5,11 @@ type Options = {
 	inherited: boolean
 }
 
-type Callback = (propName: PropertyKey, value: any) => unknown
+type PropKey = string | symbol // Make our own PropKey because TypeScript's PropertyKey is incorrect.
 
-const propsAndCallbacks = new WeakMap<object, Map<PropertyKey, Callback[]>>()
+type Callback = (propName: PropKey, value: any) => unknown
+
+const propsAndCallbacks = new WeakMap<object, Map<PropKey, Callback[]>>()
 
 export function observe<T extends object>(
 	object: T,
@@ -23,19 +25,14 @@ export function observe<T extends object>(
 		let propCallbacks = propsAndCallbacks.get(object)
 		!propCallbacks && propsAndCallbacks.set(object, (propCallbacks = new Map()))
 
-		let callbacks = propCallbacks.get(propName)
+		let callbacks = propCallbacks.get(propName as PropKey)
 
-		if (callbacks) {
-			if (!callbacks.includes(callback)) callbacks.push(callback)
-			continue
+		if (!callbacks) {
+			propCallbacks.set(propName as PropKey, (callbacks = []))
+			defineObservationGetterSetter(object, propName, options as Options)
 		}
 
-		// the rest only runs once, the first time the prop observation is set up
-
-		propCallbacks.set(propName, (callbacks = []))
-		callbacks.push(callback)
-
-		defineObservationGetterSetter(object, propName, options as Options)
+		if (!callbacks.includes(callback)) callbacks.push(callback)
 	}
 }
 
@@ -61,11 +58,11 @@ export function unobserve<T extends object>(object: T, props: Callback | (keyof 
 	if (!callback) throw new TypeError('callback not supplied')
 
 	for (const prop of props) {
-		const callbacks = propCallbacks.get(prop)!
+		const callbacks = propCallbacks.get(prop as PropKey)!
 
 		if (callbacks.includes(callback)) {
 			callbacks.splice(callbacks.indexOf(callback), 1)
-			if (!callbacks.length) propCallbacks.delete(prop)
+			if (!callbacks.length) propCallbacks.delete(prop as PropKey)
 		}
 	}
 }
@@ -73,16 +70,16 @@ export function unobserve<T extends object>(object: T, props: Callback | (keyof 
 // This is used to keep track if an object already has an observation accessor
 // in place for a given property. If so, then we don't need to add another layer
 // of property descriptor on top for each new call to observe on the object.
-const objectsToObservableProps = new WeakMap<object, Set<PropertyKey>>()
+const objectsToObservableProps = new WeakMap<object, Set<PropKey>>()
 
 function defineObservationGetterSetter<T extends object>(object: T, propName: keyof T, options: Options) {
-	let observableProps: Set<keyof T> | undefined
+	let observableProps: Set<PropKey> | undefined
 	const inherited = options.inherited
 
 	if (!inherited) {
-		observableProps = objectsToObservableProps.get(object) as Set<keyof T> | undefined
+		observableProps = objectsToObservableProps.get(object) as Set<PropKey> | undefined
 		if (!observableProps) objectsToObservableProps.set(object, (observableProps = new Set()))
-		else if (observableProps.has(propName)) return
+		else if (observableProps.has(propName as PropKey)) return
 	}
 
 	// get the existing descriptor, or create a new one if the property doesn't exist.
@@ -102,9 +99,9 @@ function defineObservationGetterSetter<T extends object>(object: T, propName: ke
 		// chain, because people can modify prototype chains and introduce new
 		// descriptors anywhere in the chain. We want to check the whole chain
 		// to see if we find an observation accessor defined by us.
-		observableProps = objectsToObservableProps.get(owner) as Set<keyof T> | undefined
+		observableProps = objectsToObservableProps.get(owner) as Set<PropKey> | undefined
 		if (!observableProps) objectsToObservableProps.set(owner, (observableProps = new Set()))
-		else if (observableProps.has(propName)) return
+		else if (observableProps.has(propName as PropKey)) return
 	}
 
 	let getValue: (() => any) | undefined
@@ -152,15 +149,15 @@ function defineObservationGetterSetter<T extends object>(object: T, propName: ke
 		},
 	})
 
-	observableProps!.add(propName)
+	observableProps!.add(propName as PropKey)
 }
 
 function runCallbacks<T extends object>(object: T, propName: keyof T, value: any) {
-	const callbacks = propsAndCallbacks.get(object)!.get(propName)
+	const callbacks = propsAndCallbacks.get(object)!.get(propName as PropKey)
 
 	if (!callbacks) return
 
 	for (const callback of callbacks) {
-		callback(propName, value)
+		callback(propName as PropKey, value)
 	}
 }

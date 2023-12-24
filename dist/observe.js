@@ -8,15 +8,12 @@ export function observe(object, propertyNames, callback, options = {}) {
         let propCallbacks = propsAndCallbacks.get(object);
         !propCallbacks && propsAndCallbacks.set(object, (propCallbacks = new Map()));
         let callbacks = propCallbacks.get(propName);
-        if (callbacks) {
-            if (!callbacks.includes(callback))
-                callbacks.push(callback);
-            continue;
+        if (!callbacks) {
+            propCallbacks.set(propName, (callbacks = []));
+            defineObservationGetterSetter(object, propName, options);
         }
-        // the rest only runs once, the first time the prop observation is set up
-        propCallbacks.set(propName, (callbacks = []));
-        callbacks.push(callback);
-        defineObservationGetterSetter(object, propName, options);
+        if (!callbacks.includes(callback))
+            callbacks.push(callback);
     }
 }
 // NOTE, unobserve does not remove the observation accessors that observe
