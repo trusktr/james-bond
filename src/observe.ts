@@ -1,4 +1,4 @@
-import {getInheritedDescriptor} from 'lowclass'
+import {getInheritedDescriptor} from 'lowclass/dist/getInheritedDescriptor.js'
 
 type Options = {
 	async: boolean
