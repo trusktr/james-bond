@@ -1,4 +1,4 @@
-import { getInheritedDescriptor } from 'lowclass';
+import { getInheritedDescriptor } from 'lowclass/dist/getInheritedDescriptor.js';
 const propsAndCallbacks = new WeakMap();
 export function observe(object, propertyNames, callback, options = {}) {
     // TODO the options.async option will make callbacks fire on the next microtask instead of synchronously
